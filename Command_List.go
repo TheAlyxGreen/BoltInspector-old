@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-func list(DBPath string, bucketPath []string, cmd []string) int{
-	db, err := bolt.Open(DBPath, 0600, nil)
+func list(cmd []string) int{
+	db, err := bolt.Open(path, 0600, nil)
 	defer db.Close()
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +61,6 @@ func list(DBPath string, bucketPath []string, cmd []string) int{
 				for i:=0;i<len(listbuckets);i++{
 					fmt.Println("b | "+listbuckets[i])
 				}
-				fmt.Println("-")
 				for i:=0;i<len(listkeys);i++{
 					fmt.Println("k | "+listkeys[i])
 				}

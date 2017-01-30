@@ -10,10 +10,14 @@ import (
 	"strings"
 )
 
+// full path to database; just the file name
+var path,filename = "", ""
+// path to current bucket inside the database; "." is root
+var bucketPath = []string{".","TVShows","tt2193021"}
+
 func main() {
 
-	path,filename := "", ""
-
+	// Get the database path from the user and verify it exists
 	for {
 		fmt.Print("Database to Read (or exit): ")
 		scan := bufio.NewScanner(os.Stdin)
@@ -35,17 +39,19 @@ func main() {
 		}
 	}
 
+	// verify that bolt can open the database
 	db, err := bolt.Open(path, 0600, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	db.Close()
 
+	// set the filename var
 	_, filename = filepath.Split(path)
 
-	bucketPath := []string{".","TVShows","tt2193021"}
-	for { // loop for each command
-		fmt.Print("["+filename+"] "+str(bucketPath)+" $>")
+	// main loop of the script
+	for {
+		fmt.Print("["+filename+"] "+ bpToStr(bucketPath)+" $>")
 		scan := bufio.NewScanner(os.Stdin)
 		scan.Scan()
 		cmd := strings.SplitN(scan.Text()," ",2)
@@ -56,10 +62,10 @@ func main() {
 		} else if cmd[0]=="help" {
 			help()
 		} else if cmd[0]=="list"{
-			e:=list(path,bucketPath,cmd)
+			e:=list(cmd)
 			if e==0 {
 			} else if e==1{
-				fmt.Println("[Error] Bucket path "+str(bucketPath)+" is invalid. Returning to root...")
+				fmt.Println("[Error] Bucket path "+ bpToStr(bucketPath)+" is invalid. Returning to root...")
 				bucketPath=[]string{"."}
 			} else {
 				println("Unknown Error")
@@ -68,28 +74,4 @@ func main() {
 			fmt.Println("Unrecognized command. Type \"help\" to see commands")
 		}
 	}
-}
-
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil { return true, nil }
-	if os.IsNotExist(err) { return false, nil }
-	return true, err
-}
-
-func str(s []string) string {
-	r := s[0]
-	for i:=1;i<len(s);i++{
-		r=r+"/"+s[i]
-	}
-	return "("+r+")"
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
