@@ -26,5 +26,7 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 
 ### Progress
 January 30th, 2017
-> Initial Commit. It only has 2 functions - Help and List
-> I'm about to begin working on the Change Bucket command
+```
+Initial Commit. It only has 2 functions - Help and List.
+I'm about to begin working on the Change Bucket command
+```
