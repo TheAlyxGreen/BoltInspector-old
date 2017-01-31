@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"sort"
+	"math/rand"
 )
 
 /*
@@ -90,4 +91,13 @@ func sortArray(dbvs []dbVal)[]dbVal{
 		r=append(r,tmp[keys[i]])
 	}
 	return r
+}
+
+func RandString(n int) string {
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

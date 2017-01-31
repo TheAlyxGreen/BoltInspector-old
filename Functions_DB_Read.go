@@ -14,19 +14,27 @@ They're only separated to make the files smaller and reduce clutter
 
 // struct for bucket info and methods
 type bckt struct {
-	Path []string
+	path []string
+}
+
+func (d bckt) bucketString() string{
+	s := ""
+	for i:=0;i<len(d.path);i++{
+		s=s+d.path[i]+"/"
+	}
+	return s
 }
 
 // reset the bucket to the root
 func (b *bckt) reset(){
-	b.Path = []string{"."}
+	b.path = []string{"~"}
 }
 
 // verify this bucket exists
 func (b bckt) exists() bool{
-	bp := b.Path
+	bp := b.path
 	if len(bp)==1{
-		if bp[0]=="."{
+		if bp[0]=="~"{
 			return true
 		} else {
 			return false
@@ -88,13 +96,13 @@ func (b bckt) getAll() []dbVal{
 		}
 		defer db.Close()
 
-		if len(b.Path)==1{
+		if len(b.path)==1{
 
 			// if path is root, dump root buckets
 			db.View(func(tx *bolt.Tx) error {
 				return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
 					t := dbVal{}
-					t.path = b.Path
+					t.path = b.path
 					t.v = nil
 					t.k=cpyBytes(name)
 					r = append(r,t)
@@ -109,17 +117,17 @@ func (b bckt) getAll() []dbVal{
 				allBuckets := []*bolt.Bucket{}
 
 				// set first bucket to root bucket
-				allBuckets = append(allBuckets,tx.Bucket([]byte(b.Path[1])))
+				allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
 
 				// burrow into bottom bucket of path
-				for i:=2;i<len(b.Path);i++{
-					allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.Path[i])))
+				for i:=2;i<len(b.path);i++{
+					allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
 				}
 
 				// for all in last bucket, copy values to r
 				allBuckets[len(allBuckets)-1].ForEach(func(k, v []byte) error {
 					t := dbVal{}
-					t.path = b.Path
+					t.path = b.path
 					t.k=cpyBytes(k)
 					if v!=nil {
 						t.v = cpyBytes(v)
@@ -132,6 +140,8 @@ func (b bckt) getAll() []dbVal{
 				return nil
 			})
 		}
+	} else {
+		return nil
 	}
 
 	// return the results

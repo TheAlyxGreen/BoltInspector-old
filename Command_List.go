@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func list(cmd []string) int{
+func list(cmd []string) {
 	show := 0 // 0=all,1=buckets,2=keys
 	verbose := false
 	if len(cmd)>1{
@@ -21,6 +21,11 @@ func list(cmd []string) int{
 		}
 	}
 	bs := currentBucket.getAll()
+	if bs==nil{
+		fmt.Println("[Error] Bucket does not exist. Returning to root...")
+		currentBucket.reset()
+		return
+	}
 	bs = sortArray(bs)
 	bckts := []dbVal{}
 	keys := []dbVal{}
@@ -53,5 +58,4 @@ func list(cmd []string) int{
 			}
 		}
 	}
-	return 0
 }

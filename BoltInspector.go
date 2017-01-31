@@ -12,13 +12,14 @@ import (
 
 // full path to database; just the file name
 var path,filename = "", ""
-// path to current bucket inside the database; "." is root
-var currentBucket = bckt{[]string{".","TVShows"}}
+// path to current bucket inside the database; "~" is root
+var currentBucket = bckt{[]string{"~","TVShows"}}
 
 func main() {
 
 	// Get the database path from the user and verify it exists
 	for {
+		fmt.Println()
 		fmt.Print("Database to Read (or exit): ")
 		scan := bufio.NewScanner(os.Stdin)
 		scan.Scan()
@@ -51,7 +52,7 @@ func main() {
 
 	// main loop of the script
 	for {
-		fmt.Print("["+filename+"] "+ bpToStr(currentBucket.Path)+" $>")
+		fmt.Print("["+filename+"] "+ bpToStr(currentBucket.path)+" $>")
 		scan := bufio.NewScanner(os.Stdin)
 		scan.Scan()
 		cmd := strings.SplitN(scan.Text()," ",2)
@@ -60,16 +61,11 @@ func main() {
 			fmt.Println("Exiting...")
 			break
 		} else if cmd[0]=="help" {
-			help()
-		} else if cmd[0]=="list"{
-			e:=list(cmd)
-			if e==0 {
-			} else if e==1{
-				fmt.Println("[Error] Bucket path "+ bpToStr(currentBucket.Path)+" is invalid. Returning to root...")
-				currentBucket.reset()
-			} else {
-				println("Unknown Error")
-			}
+			help(cmd)
+		} else if cmd[0]=="list" {
+			list(cmd)
+		} else if cmd[0]=="cd"{
+			cd(cmd)
 		} else {
 			fmt.Println("Unrecognized command. Type \"help\" to see commands")
 		}
