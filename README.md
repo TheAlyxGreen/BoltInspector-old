@@ -12,7 +12,7 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 - [x] List all root buckets in database
 - [x] List files in current bucket
 - [x] Distinguish between keys and nested buckets when listing
-- [ ] Change current bucket
+- [x] Change current bucket
 - [ ] Recursive listing
 - [ ] Insert new key/bucket
 - [ ] Delete key/bucket
@@ -25,7 +25,14 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 - [ ] Move key/bucket
 
 ### Progress
-January 30th, 2017
+January 30th, 2017 (part 2)
+```
+Updated a lot of the files, changed some things around.
+Added the CD (change directory) command to move around
+inside of the database.
+```
+
+January 30th, 2017 (part 1)
 ```
 Initial Commit. It only has 2 functions - Help and List.
 I'm about to begin working on the Change Bucket command
