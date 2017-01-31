@@ -1,75 +1,56 @@
 package main
 
 import (
-	"github.com/boltdb/bolt"
-	"log"
 	"fmt"
+	"strings"
 )
 
 func list(cmd []string) int{
-	db, err := bolt.Open(path, 0600, nil)
-	defer db.Close()
-	if err != nil {
-		log.Fatal(err)
+	show := 0 // 0=all,1=buckets,2=keys
+	verbose := false
+	if len(cmd)>1{
+		args := strings.Split(cmd[1]," ")
+		for i:=0;i<len(args);i++{
+			if args[i]=="b"{
+				show=1
+			} else if args[i]=="k" {
+				show = 2
+			} else if args[i]=="v" {
+				verbose=true
+			}
+		}
 	}
-
-	if len(bucketPath)==1{
-		db.View(func(tx *bolt.Tx) error {
-			return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
-				fmt.Println("./"+string(name))
-				return nil
-			})
-		})
-	} else {
-		rootBuckets := []string{}
-		db.View(func(tx *bolt.Tx) error {
-			return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
-				rootBuckets=append(rootBuckets,string(name))
-				return nil
-			})
-		})
-		exc := 0
-		if contains(rootBuckets,bucketPath[1]) {
-			db.View(func(tx *bolt.Tx) error {
-				allBuckets := []*bolt.Bucket{}
-				allBuckets = append(allBuckets,tx.Bucket([]byte(bucketPath[1])))
-
-				for i:=2;i<len(bucketPath);i++{
-					keys := []string{}
-					//for each key in parent bucket
-					allBuckets[i-2].ForEach(func(k,v []byte) error {
-						keys=append(keys,string(k))
-						return nil
-					})
-					if contains(keys,bucketPath[i]){
-						allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(bucketPath[i])))
-					} else {
-						exc = 2
-						break
-					}
-				}
-				listbuckets := []string{}
-				listkeys := []string{}
-				allBuckets[len(allBuckets)-1].ForEach(func(k, v []byte) error {
-					if v==nil{
-						listbuckets=append(listbuckets,string(k))
-					} else {
-						listkeys=append(listkeys,string(k))
-					}
-					return nil
-				})
-				for i:=0;i<len(listbuckets);i++{
-					fmt.Println("b | "+listbuckets[i])
-				}
-				for i:=0;i<len(listkeys);i++{
-					fmt.Println("k | "+listkeys[i])
-				}
-
-				return nil
-			})
-			return exc
+	bs := currentBucket.getAll()
+	bs = sortArray(bs)
+	bckts := []dbVal{}
+	keys := []dbVal{}
+	for i:=0;i<len(bs);i++{
+		if bs[i].isBucket() {
+			bckts=append(bckts,bs[i])
 		} else {
-			return 1
+			keys=append(keys,bs[i])
+		}
+	}
+	if show==0||show==1 {
+		for i:=0;i<len(bckts);i++{
+			if !verbose {
+				fmt.Println("./" + bckts[i].key())
+			} else {
+				fmt.Println("[Bucket] "+bckts[i].bucketString() + bckts[i].key())
+				fmt.Println()
+			}
+		}
+	}
+	if show==0||show==2 {
+		for i:=0;i<len(keys);i++{
+			if !verbose {
+				fmt.Println(keys[i].key())
+			} else {
+				fmt.Println("[Key] "+keys[i].bucketString() + keys[i].key())
+				fmt.Print(" -- Value ([]Byte): ")
+				fmt.Println(keys[i].v)
+				fmt.Println()
+			}
 		}
 	}
 	return 0

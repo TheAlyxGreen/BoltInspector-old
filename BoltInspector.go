@@ -13,7 +13,7 @@ import (
 // full path to database; just the file name
 var path,filename = "", ""
 // path to current bucket inside the database; "." is root
-var bucketPath = []string{".","TVShows","tt2193021"}
+var currentBucket = bckt{[]string{".","TVShows"}}
 
 func main() {
 
@@ -51,7 +51,7 @@ func main() {
 
 	// main loop of the script
 	for {
-		fmt.Print("["+filename+"] "+ bpToStr(bucketPath)+" $>")
+		fmt.Print("["+filename+"] "+ bpToStr(currentBucket.Path)+" $>")
 		scan := bufio.NewScanner(os.Stdin)
 		scan.Scan()
 		cmd := strings.SplitN(scan.Text()," ",2)
@@ -65,8 +65,8 @@ func main() {
 			e:=list(cmd)
 			if e==0 {
 			} else if e==1{
-				fmt.Println("[Error] Bucket path "+ bpToStr(bucketPath)+" is invalid. Returning to root...")
-				bucketPath=[]string{"."}
+				fmt.Println("[Error] Bucket path "+ bpToStr(currentBucket.Path)+" is invalid. Returning to root...")
+				currentBucket.reset()
 			} else {
 				println("Unknown Error")
 			}
