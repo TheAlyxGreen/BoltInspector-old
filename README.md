@@ -10,7 +10,7 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 *Features I consider necessary for the program to be fully functioning*
 - [x] Open Database files (a low bar, I know)
 - [x] List all root buckets in database
-- [x] List files in current bucket
+- [x] List keys in current bucket
 - [x] Distinguish between keys and nested buckets when listing
 - [x] Change current bucket
 - [x] Print key values
