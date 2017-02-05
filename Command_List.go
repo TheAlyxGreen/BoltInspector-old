@@ -11,11 +11,11 @@ func list(cmd []string) {
 	if len(cmd)>1{
 		args := strings.Split(cmd[1]," ")
 		for i:=0;i<len(args);i++{
-			if args[i]=="b"{
+			if args[i]=="b" || args[i]=="-b"{
 				show=1
-			} else if args[i]=="k" {
+			} else if args[i]=="k" || args[i]=="-k" {
 				show = 2
-			} else if args[i]=="v" {
+			} else if args[i]=="v" || args[i]=="-v" {
 				verbose=true
 			}
 		}

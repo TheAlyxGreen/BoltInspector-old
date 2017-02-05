@@ -34,6 +34,13 @@ func help(cmd []string){
 		at the moment, not full unix emulation.
 		~ is the database root.
 
+	print <key> [s|i|ui|b]:
+		Print the value of the specified key.
+		For now, the key must be in the bucket
+		currently being inspected. If you need
+		to read a key in a different bucket,
+		you need to CD there first.
+
 
 | ------------      END  COMMANDS      ------------ |
 	`)

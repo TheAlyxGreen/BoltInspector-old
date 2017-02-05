@@ -147,3 +147,13 @@ func (b bckt) getAll() []dbVal{
 	// return the results
 	return r
 }
+
+func (b bckt) getOne(key string) (dbVal,bool){
+	vals := b.getAll()
+	for i:=0;i<len(vals);i++{
+		if string(vals[i].k) == key{
+			return vals[i], true
+		}
+	}
+	return dbVal{}, false
+}
