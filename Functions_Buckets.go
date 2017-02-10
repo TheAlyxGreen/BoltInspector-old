@@ -7,7 +7,7 @@ import (
 
 /*
 
-This file contains functions related to reading the database.
+This is essentially the Bucket class and its functions
 They're only separated to make the files smaller and reduce clutter
 
 */
@@ -17,10 +17,10 @@ type bckt struct {
 	path []string
 }
 
-func (d bckt) bucketString() string{
+func (b bckt) bucketString() string{
 	s := ""
-	for i:=0;i<len(d.path);i++{
-		s=s+d.path[i]+"/"
+	for i:=0;i<len(b.path);i++{
+		s=s+ b.path[i]+"/"
 	}
 	return s
 }
@@ -111,7 +111,7 @@ func (b bckt) getAll() []dbVal{
 			})
 		} else {
 			// if path isn't the root, recurse into path
-			db.Update(func(tx *bolt.Tx) error {
+			db.View(func(tx *bolt.Tx) error {
 
 				// create array to store references to buckets
 				allBuckets := []*bolt.Bucket{}
@@ -156,4 +156,37 @@ func (b bckt) getOne(key string) (dbVal,bool){
 		}
 	}
 	return dbVal{}, false
+}
+
+func (b bckt) insert(key []byte, val []byte) bool{
+	if !b.exists() {
+		return false
+	}
+
+	db, err := bolt.Open(path, 0600, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	db.Update(func(tx *bolt.Tx) error {
+		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+			// create array to store references to buckets
+			allBuckets := []*bolt.Bucket{}
+
+			// set first bucket to root bucket
+			allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
+
+			// burrow into bottom bucket of path
+			for i:=2;i<len(b.path);i++{
+				allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
+			}
+
+			allBuckets[len(allBuckets)-1].Put(key, val)
+
+			return nil
+		})
+	})
+
+	return true
 }

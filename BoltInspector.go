@@ -68,6 +68,8 @@ func main() {
 			cd(cmd)
 		} else if cmd[0]=="print"{
 			print(cmd)
+		} else if cmd[0]=="write"{
+			write(cmd)
 		} else {
 			fmt.Println("Unrecognized command. Type \"help\" to see commands")
 		}
