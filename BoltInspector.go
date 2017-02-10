@@ -70,6 +70,10 @@ func main() {
 			print(cmd)
 		} else if cmd[0]=="write"{
 			write(cmd)
+		} else if cmd[0]=="bucket"{
+			bucket(cmd)
+		} else if cmd[0]=="delete"{
+			delete(cmd)
 		} else {
 			fmt.Println("Unrecognized command. Type \"help\" to see commands")
 		}

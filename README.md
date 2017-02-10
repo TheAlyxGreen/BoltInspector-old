@@ -16,7 +16,7 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 - [x] Print key values
 - [X] Insert new key/bucket
 - [X] Edit existing key
-- [ ] Delete key/bucket
+- [x] Delete key/bucket
 - [ ] Empty bucket (delete all keys in bucket, but not bucket)
 - [ ] Recursive listing
 
@@ -26,13 +26,22 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 - [ ] Move key/bucket
 
 ### Progress
-February 10th, 2017
+February 10th, 2017 (part 2)
+```
+Added the 'delete' command for deleting both key/val
+pairs and buckets, and added the 'bucket' command for
+adding a nested bucket to the current bucket. Added 
+the relevant help information for both
+```
+
+February 10th, 2017 (part 1)
 ```
 Added the 'write' command, renamed a few files and
 moved some functions around. I also updated the help
 command for both 'print' (added info about arguments)
 and for 'write'
 ```
+
 February 4th, 2017
 ```
 Added the 'print' command to output the values of given

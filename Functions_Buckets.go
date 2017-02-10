@@ -190,3 +190,74 @@ func (b bckt) insert(key []byte, val []byte) bool{
 
 	return true
 }
+
+func (b bckt) insertBucket(key []byte) bool {
+	if !b.exists() {
+		return false
+	}
+
+	db, err := bolt.Open(path, 0600, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	db.Update(func(tx *bolt.Tx) error {
+		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+			// create array to store references to buckets
+			allBuckets := []*bolt.Bucket{}
+
+			// set first bucket to root bucket
+			allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
+
+			// burrow into bottom bucket of path
+			for i:=2;i<len(b.path);i++{
+				allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
+			}
+
+			allBuckets[len(allBuckets)-1].CreateBucketIfNotExists(key)
+
+			return nil
+		})
+	})
+
+	return true
+}
+
+func (b bckt) delete(key []byte) bool{
+
+	if !b.exists() {
+		return false
+	}
+
+	db, err := bolt.Open(path, 0600, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	db.Update(func(tx *bolt.Tx) error {
+		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+			// create array to store references to buckets
+			allBuckets := []*bolt.Bucket{}
+
+			// set first bucket to root bucket
+			allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
+
+			// burrow into bottom bucket of path
+			for i:=2;i<len(b.path);i++{
+				allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
+			}
+
+			if allBuckets[len(allBuckets)-1].Get(key) != nil{
+				allBuckets[len(allBuckets)-1].Delete(key)
+			} else {
+				allBuckets[len(allBuckets)-1].DeleteBucket(key)
+			}
+
+			return nil
+		})
+	})
+
+	return true
+}

@@ -64,6 +64,17 @@ func help(cmd []string){
 		s : write value as string -> bytes
 		i : write value as int -> bytes
 
+	bucket <key>:
+		Create a nested bucket in the current
+		bucket with the given key. Returns an
+		error if the key is already defined.
+
+	delete <key>:
+		Delete the given key. Works for both
+		key/value pairs and for buckets. It
+		asks for a confirmation prior to
+		affecting the database.
+
 
 | ------------      END  COMMANDS      ------------ |
 	`)
