@@ -27,6 +27,14 @@ func help(cmd []string){
 		b : only buckets, not normal keys
 		v : verbose mode. Shows more information
 
+	rlist [v] [depth=<int>]:
+		Recursively list contents of the current
+		bucket and all nested buckets.
+		[ARGUMENTS]
+		v : verbose mode. Shows more information
+		d : synonym for depth. d=<int> works.
+		depth : Depth to recurse
+
 	cd <path>:
 		Change the current bucket to the
 		specified one. Can use absolute or
@@ -74,6 +82,12 @@ func help(cmd []string){
 		key/value pairs and for buckets. It
 		asks for a confirmation prior to
 		affecting the database.
+
+	empty [bucket]:
+		Delete all values and buckets stored
+		within the given bucket. If no bucket
+		argument is given, it empties the
+		current bucket.
 
 
 | ------------      END  COMMANDS      ------------ |

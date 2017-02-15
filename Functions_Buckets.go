@@ -261,3 +261,44 @@ func (b bckt) delete(key []byte) bool{
 
 	return true
 }
+
+func (b bckt) empty() bool{
+
+	if !b.exists() {
+		return false
+	}
+
+	db, err := bolt.Open(path, 0600, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	db.Update(func(tx *bolt.Tx) error {
+		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+			// create array to store references to buckets
+			allBuckets := []*bolt.Bucket{}
+
+			// set first bucket to root bucket
+			allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
+
+			// burrow into bottom bucket of path
+			for i:=2;i<len(b.path);i++{
+				allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
+			}
+
+			allBuckets[len(allBuckets)-1].ForEach(func(k, v []byte) error {
+				if v!=nil{
+					allBuckets[len(allBuckets)-1].Delete(k)
+				} else {
+					allBuckets[len(allBuckets)-1].DeleteBucket(k)
+				}
+				return nil
+			})
+
+			return nil
+		})
+	})
+
+	return true
+}

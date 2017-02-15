@@ -20,15 +20,6 @@ func exists(path string) (bool, error) {
 	return true, err
 }
 
-// Creates the nice string for the bucket path
-func bpToStr(s []string) string {
-	r := s[0]
-	for i:=1;i<len(s);i++{
-		r=r+"/"+s[i]
-	}
-	return "("+r+")"
-}
-
 // Does array contain given string?
 func contains(s []string, e string) bool {
 	for _, a := range s {
