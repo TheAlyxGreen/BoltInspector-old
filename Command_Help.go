@@ -54,8 +54,8 @@ func help(cmd []string){
 		provided.
 		[ARGUMENTS]
 		s : print as string
-		i : print as signed int
-		ui: print as unsigned int
+		i : print as signed int32
+		ui: print as unsigned int32
 		b : print as bytes
 
 	write <key> <value> [s|i]:
@@ -70,7 +70,8 @@ func help(cmd []string){
 		first argument sticks.
 		[ARGUMENTS]
 		s : write value as string -> bytes
-		i : write value as int -> bytes
+		i : write value as int32 -> bytes
+		ui: write value as uint32 -> bytes
 
 	bucket <key>:
 		Create a nested bucket in the current

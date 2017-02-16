@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"encoding/binary"
 	"strings"
 )
 
@@ -33,13 +32,21 @@ func print(cmd []string){
 				fmt.Print("String: ")
 				fmt.Println(val.val())
 			} else if args[i]=="i" || args[i]=="-i" {
-				data,_ := binary.Varint(val.v)
 				fmt.Print("Signed Int: ")
-				fmt.Println(data)
+				if len(val.v)!=8{
+					fmt.Println("Cannot be read as a Signed Int (32)")
+				} else {
+					data := readInt32(val.v)
+					fmt.Println(data)
+				}
 			} else if args[i]=="ui" || args[i]=="-ui" {
-				data,_ := binary.Uvarint(val.v)
 				fmt.Print("Unsigned Int: ")
-				fmt.Println(data)
+				if len(val.v)!=8{
+					fmt.Println("Cannot be read as a Signed Int (32)")
+				} else {
+					data := uint32(readInt32(val.v))
+					fmt.Println(data)
+				}
 			} else if args[i]=="b" || args[i]=="-b"{
 				fmt.Print("Byte String: ")
 				fmt.Println(val.v)
@@ -50,4 +57,9 @@ func print(cmd []string){
 		fmt.Println(val.v)
 	}
 
+}
+
+func readInt32(b []byte) int32 {
+	// equivalnt of return int32(binary.LittleEndian.Uint32(b))
+	return int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24)
 }

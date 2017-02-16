@@ -1,12 +1,19 @@
 # Bolt Inspector Changelog
 
-February 15th, 2017
+February 15th, 2017 (part 2)
+```
+- Fixed 'write' and 'print' commands to correctly handle int32 and uint32
+- Fixed 'write' command crashing if used in root directory
+```
+
+February 15th, 2017 (part 1)
 ```
 - Added the 'empty' command to delete everything in the current bucket, but keep the bucket
 - Added the 'rlist' command to recursively list bucket contents
 - Updated Readme file to reflect that all vital commands now exist
 - Deleted 'Progress' from the Readme file, moved content to new Changelog file
 ```
+
 February 10th, 2017 (part 2)
 ```
 - Added the 'delete' command for deleting both key/val pairs and buckets
