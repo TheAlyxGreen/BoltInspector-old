@@ -2,35 +2,46 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 func print(cmd []string){
 
-	if len(cmd)==1{
+	args,r := parseArguments(cmd,1)
+
+	if r==2{
 		fmt.Println("[Error] You must specify a key to print.")
+		return
+	} else if r==3{
+		fmt.Println("[Error] Couldn't parse arguments.")
 		return
 	}
 
-	args := strings.Split(cmd[1]," ")
+	path := stringToPath(args[0],currentBucket)
+	trgt := path[len(path)-1]
 
-	val,suc := currentBucket.getOne(args[0])
+	nb := bckt{path[:len(path)-1]}
+
+	if !nb.exists(){
+		fmt.Println("[Error] The specified bucket doesn't exist")
+		return
+	}
+
+	val,suc := nb.getOne(trgt)
 
 	if !suc {
-		fmt.Println("Value for key \"" + args[0] + "\" is undefined in this bucket (" + currentBucket.bucketString() + ")")
+		fmt.Printf("Value for key %s in %s is undefined\n",trgt,nb.bucketString())
 		return
 	}
 
 	if val.v == nil{
-		fmt.Println("Key \"" + args[0] + "\" is a bucket")
+		fmt.Printf("Key %s is a bucket\n",trgt)
 		return
 	}
 
 	if len(args)>1{
 		for i:=1;i<len(args);i++{
 			if args[i]=="s" || args[i]=="-s"{
-				fmt.Print("String: ")
-				fmt.Println(val.val())
+				fmt.Printf("String: %s\n",val.val())
 			} else if args[i]=="i" || args[i]=="-i" {
 				fmt.Print("Signed Int: ")
 				if len(val.v)!=8{
@@ -48,18 +59,16 @@ func print(cmd []string){
 					fmt.Println(data)
 				}
 			} else if args[i]=="b" || args[i]=="-b"{
-				fmt.Print("Byte String: ")
-				fmt.Println(val.v)
+				fmt.Printf("Byte String: %v",val.v)
 			}
 		}
 	} else {
-		fmt.Print("Byte String: ")
-		fmt.Println(val.v)
+		fmt.Printf("Byte String: %v",val.v)
 	}
 
 }
 
 func readInt32(b []byte) int32 {
-	// equivalnt of return int32(binary.LittleEndian.Uint32(b))
+	// equivalent of return int32(binary.LittleEndian.Uint32(b))
 	return int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24)
 }

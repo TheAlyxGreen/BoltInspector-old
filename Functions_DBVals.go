@@ -1,6 +1,9 @@
 package main
 
-import "sort"
+import (
+	"sort"
+	"fmt"
+)
 
 /*
 
@@ -30,12 +33,33 @@ func (d dbVal) isBucket() bool{
 	return d.v==nil
 }
 
+// get the path to the bucket this value is in
 func (d dbVal) bucketString() string{
 	s := ""
 	for i:=0;i<len(d.path);i++{
 		s=s+d.path[i]+"/"
 	}
 	return s
+}
+
+// return a bucket made with this dbVal
+func (d dbVal) asBucket() bckt{
+	return bckt{append(d.path, d.key())}
+}
+
+func (d dbVal) toString(verbose bool) string{
+	r := ""
+	if verbose && d.isBucket() {
+		bc,vc:=d.asBucket().countBoth()
+		r = fmt.Sprintf("[Bucket] %s%s\n- Contains %d %s and %d %s\n",d.bucketString(),d.key(),vc,valPlural(vc),bc,bcktPlural(bc))
+	} else if d.isBucket() {
+		r = fmt.Sprintf("%s",d.key())
+	} else if verbose {
+		r = fmt.Sprintf("[Key] %s%s\n- Value ([]Byte): %v\n",d.bucketString(),d.key(),d.v)
+	} else {
+		r = d.key()
+	}
+	return r
 }
 
 func sortArray(dbvs []dbVal)[]dbVal{

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/boltdb/bolt"
 	"log"
+	"fmt"
 )
 
 /*
@@ -17,6 +18,7 @@ type bckt struct {
 	path []string
 }
 
+// return the path as a single string for printing
 func (b bckt) bucketString() string{
 	s := ""
 	for i:=0;i<len(b.path);i++{
@@ -148,6 +150,7 @@ func (b bckt) getAll() []dbVal{
 	return r
 }
 
+// return an individual result from the bucket, as well as whether the requested key exists
 func (b bckt) getOne(key string) (dbVal,bool){
 	vals := b.getAll()
 	for i:=0;i<len(vals);i++{
@@ -158,6 +161,83 @@ func (b bckt) getOne(key string) (dbVal,bool){
 	return dbVal{}, false
 }
 
+// return just the values, not the buckets
+func (b bckt) getValues() []dbVal{
+	vals := []dbVal{}
+	for _,val := range b.getAll(){
+		if !val.isBucket() {
+			vals = append(vals, val)
+		}
+	}
+	return vals
+}
+
+// return just the buckets, not the values
+func (b bckt) getBuckets() []dbVal{
+	vals := []dbVal{}
+	for _,val := range b.getAll(){
+		if val.isBucket() {
+			vals = append(vals, val)
+		}
+	}
+	return vals
+}
+
+// returns 2 separate arrays, one for buckets and one for values. More efficient if getting both
+func (b bckt) getAllSeparated() ([]dbVal,[]dbVal){
+	bs := []dbVal{}
+	vs := []dbVal{}
+	for _,val := range b.getAll(){
+		if val.isBucket() {
+			bs = append(bs, val)
+		} else {
+			vs = append(vs, val)
+		}
+	}
+	return bs,vs
+}
+
+// return the total number of entries in the bucket
+func (b bckt) count() int{
+	return len(b.getAll())
+}
+
+// return the number of non-bucket values stored in this bucket
+func (b bckt) valueCount() int {
+	count := 0
+	for _,val := range b.getAll(){
+		if !val.isBucket(){
+			count++
+		}
+	}
+	return count
+}
+
+// return the number of buckets nested inside this bucket
+func (b bckt) bucketCount() int {
+	count := 0
+	for _,val := range b.getAll(){
+		if val.isBucket(){
+			count++
+		}
+	}
+	return count
+}
+
+func (b bckt) countBoth() (int,int){
+	bc := 0
+	vc := 0
+	for _,val := range b.getAll(){
+		if val.isBucket(){
+			bc++
+		} else {
+			vc++
+		}
+	}
+	return bc,vc
+}
+
+// insert the specified value at the specified key
 func (b bckt) insert(key []byte, val []byte) bool{
 	if !b.exists() {
 		return false
@@ -191,6 +271,7 @@ func (b bckt) insert(key []byte, val []byte) bool{
 	return true
 }
 
+// create a nested bucket with the specified key
 func (b bckt) insertBucket(key []byte) bool {
 	if !b.exists() {
 		return false
@@ -203,27 +284,36 @@ func (b bckt) insertBucket(key []byte) bool {
 	defer db.Close()
 
 	db.Update(func(tx *bolt.Tx) error {
-		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
-			// create array to store references to buckets
-			allBuckets := []*bolt.Bucket{}
+		if len(b.path)>1 {
+			return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+				// create array to store references to buckets
+				allBuckets := []*bolt.Bucket{}
 
-			// set first bucket to root bucket
-			allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
+				// set first bucket to root bucket
+				allBuckets = append(allBuckets, tx.Bucket([]byte(b.path[1])))
 
-			// burrow into bottom bucket of path
-			for i:=2;i<len(b.path);i++{
-				allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
+				// burrow into bottom bucket of path
+				for i := 2; i < len(b.path); i++ {
+					allBuckets = append(allBuckets, allBuckets[i-2].Bucket([]byte(b.path[i])))
+				}
+
+				allBuckets[len(allBuckets)-1].CreateBucketIfNotExists(key)
+
+				return nil
+			})
+		} else {
+			_,err := tx.CreateBucket(key)
+			if err!=nil {
+				return fmt.Errorf("[Error] Failed to create bucket: %s", err)
 			}
-
-			allBuckets[len(allBuckets)-1].CreateBucketIfNotExists(key)
-
 			return nil
-		})
+		}
 	})
 
 	return true
 }
 
+// delete the value or bucket at the specified key
 func (b bckt) delete(key []byte) bool{
 
 	if !b.exists() {
@@ -237,31 +327,37 @@ func (b bckt) delete(key []byte) bool{
 	defer db.Close()
 
 	db.Update(func(tx *bolt.Tx) error {
-		return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
-			// create array to store references to buckets
-			allBuckets := []*bolt.Bucket{}
+		if len(b.path)>1 {
+			return tx.ForEach(func(name []byte, _ *bolt.Bucket) error {
+				// create array to store references to buckets
+				allBuckets := []*bolt.Bucket{}
 
-			// set first bucket to root bucket
-			allBuckets = append(allBuckets,tx.Bucket([]byte(b.path[1])))
+				// set first bucket to root bucket
+				allBuckets = append(allBuckets, tx.Bucket([]byte(b.path[1])))
 
-			// burrow into bottom bucket of path
-			for i:=2;i<len(b.path);i++{
-				allBuckets = append(allBuckets,allBuckets[i-2].Bucket([]byte(b.path[i])))
-			}
+				// burrow into bottom bucket of path
+				for i := 2; i < len(b.path); i++ {
+					allBuckets = append(allBuckets, allBuckets[i-2].Bucket([]byte(b.path[i])))
+				}
 
-			if allBuckets[len(allBuckets)-1].Get(key) != nil{
-				allBuckets[len(allBuckets)-1].Delete(key)
-			} else {
-				allBuckets[len(allBuckets)-1].DeleteBucket(key)
-			}
+				if allBuckets[len(allBuckets)-1].Get(key) != nil {
+					allBuckets[len(allBuckets)-1].Delete(key)
+				} else {
+					allBuckets[len(allBuckets)-1].DeleteBucket(key)
+				}
 
+				return nil
+			})
+		} else {
+			tx.DeleteBucket(key)
 			return nil
-		})
+		}
 	})
 
 	return true
 }
 
+// delete all values and buckets located within this bucket
 func (b bckt) empty() bool{
 
 	if !b.exists() {
@@ -301,4 +397,13 @@ func (b bckt) empty() bool{
 	})
 
 	return true
+}
+
+func (b bckt) isRoot() bool{
+	if len(b.path)==1{
+		if b.path[0]=="~" {
+			return true
+		}
+	}
+	return false
 }

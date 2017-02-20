@@ -8,11 +8,20 @@ import (
 )
 
 func rlist(cmd []string) {
+	if !currentBucket.exists(){
+		fmt.Println("[Error] Bucket does not exist. Returning to root...")
+		currentBucket.reset()
+		return
+	}
 	verbose := false
 	maxRecurse := 3
-	var args []string
-	if len(cmd)>1{
-		args = strings.Split(cmd[1]," ")
+
+	args,r := parseArguments(cmd,0)
+
+	if r==3 {
+		fmt.Println("[Error] Couldn't parse arguments")
+		return
+	} else if r==0 {
 		for i:=0;i<len(args);i++{
 			if args[i]=="v" || args[i]=="-v" {
 				verbose=true
@@ -29,66 +38,35 @@ func rlist(cmd []string) {
 		}
 	}
 
-	if !currentBucket.exists(){
-		fmt.Println("[Error] Bucket does not exist. Returning to root...")
-		currentBucket.reset()
-		return
-	}
-
 	recurseDump(currentBucket,maxRecurse,0,verbose)
 
 }
 
-func recurseDump(b bckt,rMax int, rCur int, verbose bool){
-	vals := b.getAll()
-	if vals == nil{
-		fmt.Println("[Error] Invalid bucket called in Recursive Listing ("+b.bucketString()+").")
-		return
-	}
+func recurseDump(b bckt, rMax int, rCur int, verbose bool){
+	bckts,vals := b.getAllSeparated()
 	rpath := "."
+	if currentBucket.isRoot(){
+		rpath = "~"
+	}
 	for i,val := range b.path{
-		if i>len(currentBucket.path){
+		if i>=len(currentBucket.path){
 			rpath=rpath+"/"+val
 		}
 	}
 	for _,val := range vals{
-		if val.isBucket() {
-			if verbose {
-				bp := b.path
-				bp = append(bp, val.key())
-				nb := bckt{bp}
-				fmt.Printf("[Bucket] %s%s/\n",val.bucketString(),val.key())
-				ks:=0
-				bs:=0
-				for _,val := range nb.getAll(){
-					if val.isBucket(){
-						bs++
-					} else {
-						ks++
-					}
-				}
-				fmt.Printf("-- Contains %d value(s) and %d buckets.\n",ks,bs)
-				if rMax<=rCur{
-					fmt.Printf("-- Contents Outside Recurse Depth (Depth = %d)\n",rMax)
-				}
-				fmt.Println()
-			} else {
-				fmt.Printf("%s/%s/",rpath,val.key())
-			}
-			if rMax>rCur {
-				bp := b.path
-				bp = append(bp, val.key())
-				nb := bckt{bp}
-				recurseDump(nb, rMax, rCur+1, verbose)
-			} else if !verbose {
-				fmt.Print("...\n")
-			}
-		} else {
-			if verbose {
-				fmt.Printf("[Key] %s%s\n-- Value ([]Byte): %v\n\n",val.bucketString(),val.key(),val.v)
-			} else {
-				fmt.Printf("%s/%s\n",rpath,val.key())
-			}
+		if !verbose{fmt.Print(rpath+"/")}
+		fmt.Println(val.toString(verbose))
+	}
+	for _,val := range bckts{
+		if !verbose{fmt.Print(rpath+"/")}
+		fmt.Print(val.toString(verbose))
+		if verbose && rMax<=rCur {
+			fmt.Printf("- Contents Outside Recurse Depth (Depth = %d)\n\n", rMax)
+		} else if rMax<=rCur {
+			fmt.Println()
+		} else if rMax>rCur {
+			fmt.Println()
+			recurseDump(val.asBucket(), rMax, rCur+1, verbose)
 		}
 	}
 }

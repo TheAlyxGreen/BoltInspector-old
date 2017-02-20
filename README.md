@@ -6,24 +6,27 @@ After working with Bolt for several days, I got incredibly fed-up with working i
 
 Bolt Inspector is a command-line program that quickly lets you load a database and inspect its structures and values. Unlike other programs that exist, it is built specifically to work with nested buckets.
 
-To view the latest progress, check out the [Change Log](./CHANGELOG.md)
-
 ## Features
 *Features in the most current version*
-- [x] Open Database files (a low bar, I know)
-- [x] List all root buckets in database
-- [x] List keys in current bucket
-- [x] Distinguish between keys and nested buckets when listing
-- [x] Change current bucket
-- [x] Print key values
-- [X] Insert new key/bucket
-- [X] Edit existing key
-- [x] Delete key/bucket
-- [x] Empty bucket (delete all keys in bucket, but not bucket)
-- [x] Recursive listing
+- [x] Open Database files
+- [x] Move between buckets
+- [x] List everything in the current bucket
+- [x] Recursively list everything in the current bucket and nested buckets
+- [x] Distinguish between values and nested buckets when listing
+- [x] Print values (String, Int, or UInt)
+- [X] Insert new values/buckets
+- [x] Move/Copy existing values
+- [X] Edit existing values
+- [x] Delete values/buckets
+- [x] Empty bucket (delete all values/buckets inside a bucket, but not the bucket itself)
 
 *Features I would like to add, but may not*
 - [ ] Web interface
-- [ ] Rename key/bucket
-- [ ] Move key/bucket
 
+## Links
+
+This project is covered under the MIT License. Details can be found [here](./LICENSE)
+
+For the latest progress, check out the [Change Log](./docs/CHANGELOG.md)
+
+For information on future developments, check out the [Developer Log](./docs/DEVLOG.md)

@@ -2,14 +2,23 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 func list(cmd []string) {
+	if !currentBucket.exists(){
+		fmt.Println("[Error] Bucket does not exist. Returning to root...")
+		currentBucket.reset()
+		return
+	}
 	show := 0 // 0=all,1=buckets,2=keys
 	verbose := false
-	if len(cmd)>1{
-		args := strings.Split(cmd[1]," ")
+
+	args,r := parseArguments(cmd,0)
+
+	if r==3 {
+		fmt.Println("[Error] Couldn't parse arguments")
+		return
+	} else if r==0 {
 		for i:=0;i<len(args);i++{
 			if args[i]=="b" || args[i]=="-b"{
 				show=1
@@ -20,42 +29,23 @@ func list(cmd []string) {
 			}
 		}
 	}
-	bs := currentBucket.getAll()
-	if bs==nil{
-		fmt.Println("[Error] Bucket does not exist. Returning to root...")
-		currentBucket.reset()
-		return
+
+	bckts,keys := currentBucket.getAllSeparated()
+	rpath := "./"
+	if currentBucket.isRoot(){
+		rpath = "~/"
 	}
-	bs = sortArray(bs)
-	bckts := []dbVal{}
-	keys := []dbVal{}
-	for i:=0;i<len(bs);i++{
-		if bs[i].isBucket() {
-			bckts=append(bckts,bs[i])
-		} else {
-			keys=append(keys,bs[i])
-		}
+	if verbose {
+		rpath = ""
 	}
 	if show==0||show==1 {
-		for i:=0;i<len(bckts);i++{
-			if !verbose {
-				fmt.Println("./" + bckts[i].key())
-			} else {
-				fmt.Println("[Bucket] "+bckts[i].bucketString() + bckts[i].key())
-				fmt.Println()
-			}
+		for _,val := range bckts{
+			fmt.Println(rpath+val.toString(verbose))
 		}
 	}
 	if show==0||show==2 {
-		for i:=0;i<len(keys);i++{
-			if !verbose {
-				fmt.Println(keys[i].key())
-			} else {
-				fmt.Println("[Key] "+keys[i].bucketString() + keys[i].key())
-				fmt.Print(" -- Value ([]Byte): ")
-				fmt.Println(keys[i].v)
-				fmt.Println()
-			}
+		for _,val := range keys{
+			fmt.Println(val.toString(verbose))
 		}
 	}
 }

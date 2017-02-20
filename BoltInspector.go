@@ -12,6 +12,8 @@ import (
 
 // full path to database; just the file name
 var path,filename = "", ""
+// var for root bucket
+var root = bckt{[]string{"~"}}
 // path to current bucket inside the database; "~" is root
 var currentBucket = bckt{[]string{"~"}}
 
@@ -78,6 +80,10 @@ func main() {
 			delete(cmd)
 		} else if cmd[0]=="empty"{
 			emptyBucket(cmd)
+		} else if cmd[0]=="copy"{
+			copy(cmd,false)
+		} else if cmd[0]=="move"{
+			copy(cmd,true)
 		} else {
 			fmt.Println("Unrecognized command. Type \"help\" to see commands")
 		}

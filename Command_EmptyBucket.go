@@ -1,52 +1,22 @@
 package main
 
 import (
-	"strings"
 	"fmt"
 	"bufio"
 	"os"
-	"strconv"
 )
 
 func emptyBucket(cmd []string) {
 
-	target:="~"
+	args,r := parseArguments(cmd,0)
 
-	if len(cmd)>1{
-		target = cmd[1]
-	}
+	bp := currentBucket.path
 
-	bp := []string{}
-
-	if target=="~"{
-		bp = []string{"~"}
-	} else if strings.HasPrefix(target,"./"){
-
-		// if the path is relative
-		bp = currentBucket.path
-		target = strings.Replace(target,"./","",1)
-		tmp := escapedSplit(target)
-		for i:=0;i<len(tmp);i++{
-			bp = append(bp,tmp[i] )
-		}
-	} else if strings.HasPrefix(target,"/")||strings.HasPrefix(target,"~/"){
-
-		// if the path is absolute
-		if strings.HasPrefix(target,"/"){
-			target = "~"+target
-		}
-		tmp := escapedSplit(target)
-		for i:=0;i<len(tmp);i++{
-			bp = append(bp,tmp[i] )
-		}
-	} else {
-
-		// assume the path is relative
-		bp = currentBucket.path
-		tmp := escapedSplit(target)
-		for i:=0;i<len(tmp);i++{
-			bp = append(bp,tmp[i] )
-		}
+	if r==0 {
+		bp = stringToPath(args[0],currentBucket)
+	} else if r==3 {
+		fmt.Println("[Error] Couldn't parse arguments")
+		return
 	}
 
 	nb := bckt{bp}
@@ -56,19 +26,9 @@ func emptyBucket(cmd []string) {
 		return
 	}
 
-	vals := nb.getAll()
-	keyCount := 0
-	BktCount := 0
-	for i:=0;i<len(vals);i++{
-		if vals[i].isBucket(){
-			BktCount++
-		} else {
-			keyCount++
-		}
-	}
+	bc,vc := nb.countBoth()
 
-	fmt.Println("Are you sure you want to delete all "+strconv.Itoa(keyCount)+" values and all "+strconv.Itoa(BktCount)+" buckets in ("+nb.bucketString()+")?")
-
+	fmt.Printf("Are you sure you want to delete all %d %s and the %d %s in %s?\n",vc,valPlural(vc),bc,bcktPlural(bc),nb.bucketString())
 
 	for{
 		fmt.Println("Type 'yes' to continue or 'no' to cancel")
@@ -84,5 +44,4 @@ func emptyBucket(cmd []string) {
 		}
 		fmt.Print("Unknown input. ")
 	}
-
 }

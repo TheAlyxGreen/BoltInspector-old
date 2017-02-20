@@ -2,16 +2,19 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 func bucket(cmd []string){
-	if len(cmd)==1{
-		fmt.Println("[Error] You must specify a key to delete.")
+
+	args,r := parseArguments(cmd,1)
+
+	if r==2{
+		fmt.Println("[Error] You must specify a key for the bucket.")
+		return
+	} else if r==3{
+		fmt.Println("[Error] Couldn't parse arguments.")
 		return
 	}
-
-	args := strings.Split(cmd[1]," ")
 
 	_,suc := currentBucket.getOne(args[0])
 

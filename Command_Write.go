@@ -2,27 +2,35 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"encoding/binary"
 	"strconv"
 	"bytes"
 )
 
 func write(cmd []string){
-	if len(cmd)==1{
-		fmt.Println("[Error] You must specify a key and value to write.")
-		return
-	}
-
-	args := strings.Split(cmd[1]," ")
-
-	if len(args)<2{
-		fmt.Println("[Error] You must specify a key and value to write.")
-		return
-	}
 
 	if len(currentBucket.path)==1{
 		fmt.Println("[Error] You cannot write values in the root directory. Use the 'bucket' command to make a value storing bucket.")
+		return
+	}
+
+	args,r := parseArguments(cmd,2)
+
+	if r==2{
+		fmt.Println("[Error] You must specify a key and value to write.")
+		return
+	} else if r==3{
+		fmt.Println("[Error] Couldn't parse arguments")
+		return
+	}
+
+	path := stringToPath(args[0],currentBucket)
+	trgt := path[len(path)-1]
+
+	nb := bckt{path[:len(path)-1]}
+
+	if !nb.exists() {
+		fmt.Println("[Error] The specified bucket doesn't exist")
 		return
 	}
 
@@ -39,7 +47,7 @@ func write(cmd []string){
 	}
 
 	if dt=="string"{
-		currentBucket.insert([]byte(args[0]),[]byte(args[1]))
+		nb.insert([]byte(trgt),[]byte(args[1]))
 	} else if dt=="int" {
 		i, err := strconv.ParseInt(args[1], 10, 32)
 		if err != nil {
@@ -52,7 +60,7 @@ func write(cmd []string){
 			fmt.Println("binary.Write failed:", err2)
 			return
 		}
-		currentBucket.insert([]byte(args[0]), buf.Bytes())
+		nb.insert([]byte(trgt), buf.Bytes())
 		return
 	} else if dt=="uint" {
 		i, err := strconv.ParseUint(args[1], 10, 32)
@@ -66,7 +74,7 @@ func write(cmd []string){
 			fmt.Println("binary.Write failed:", err2)
 			return
 		}
-		currentBucket.insert([]byte(args[0]), buf.Bytes())
+		nb.insert([]byte(trgt), buf.Bytes())
 		return
 	} else {
 		fmt.Println("[Error] Unknown Insert Type.")

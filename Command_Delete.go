@@ -2,41 +2,52 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"bufio"
 	"os"
 )
 
 func delete(cmd []string){
 
-	if len(cmd)==1{
-		fmt.Println("[Error] You must specify a key to delete.")
+	args,r := parseArguments(cmd,1)
+
+	if r==2 {
+		fmt.Println("[Error] You must specify a key to delete")
+		return
+	} else if r==3 {
+		fmt.Println("[Error] Couldn't parse arguments")
 		return
 	}
 
-	args := strings.Split(cmd[1]," ")
+	path := stringToPath(args[0],currentBucket)
+	trgt := path[len(path)-1]
 
-	val,suc := currentBucket.getOne(args[0])
+	nb := bckt{path[:len(path)-1]}
+
+	if !nb.exists(){
+		fmt.Println("[Error] The specified bucket doesn't exist")
+		return
+	}
+
+	val,suc := nb.getOne(trgt)
 
 	if !suc {
-		fmt.Println("Value for key \"" + args[0] + "\" is undefined in this bucket (" + currentBucket.bucketString() + ")")
+		fmt.Printf("Value for key %s is undefined in %s\n",args[0],nb.bucketString())
 		return
 	}
 
 	if val.isBucket(){
-		fmt.Print("Are you sure you wish to delete the BUCKET ")
+		fmt.Printf("Are you sure you wish to delete the BUCKET %s?\n",val.key())
 	} else {
-		fmt.Print("Are you sure you wish to delete the KEY/VALUE ")
+		fmt.Printf("Are you sure you wish to delete the KEY/VALUE %s?\n",val.key())
 	}
-	fmt.Println(val.key()+"?")
 
 	for{
 		fmt.Println("Type 'yes' to continue or 'no' to cancel")
 		scan := bufio.NewScanner(os.Stdin)
 		scan.Scan()
 		if scan.Text() == "yes"{
-			currentBucket.delete([]byte(args[0]))
-			fmt.Println("The specified key was deleted")
+			nb.delete([]byte(trgt))
+			fmt.Printf("%s was deleted",val.key())
 			break
 		} else if scan.Text() == "no" {
 			fmt.Println("The database was not changed")
