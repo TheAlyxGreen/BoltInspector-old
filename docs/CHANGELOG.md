@@ -1,5 +1,11 @@
 # Bolt Inspector Changelog
 
+### February 20th, 2017
+```
+- Added 'copy' and 'move' to the help command
+- Rewrote 'help' command to have per-command help
+```
+
 ### February 19th, 2017
 ```
 - Added the 'copy' command to copy values to another key. Doesn't work with buckets (yet)
