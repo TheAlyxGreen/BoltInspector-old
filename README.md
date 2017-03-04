@@ -25,6 +25,8 @@ Bolt Inspector is a command-line program that quickly lets you load a database a
 
 ## Links
 
+For information on the program itself and how to use it, check out [the Wiki](https://github.com/89yoyos/BoltInspector/wiki)
+
 This project is covered under the MIT License. Details can be found [here](./LICENSE)
 
 For the latest progress, check out the [Change Log](./docs/CHANGELOG.md)
