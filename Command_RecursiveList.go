@@ -30,7 +30,7 @@ func rlist(cmd []string) {
 				tmp := re.ReplaceAllString(args[i],"")
 				in,er:=strconv.Atoi(tmp)
 				if er!= nil{
-					fmt.Println("Invalid length passed")
+					fmt.Println("[Error] Invalid length passed")
 					return
 				}
 				maxRecurse=in

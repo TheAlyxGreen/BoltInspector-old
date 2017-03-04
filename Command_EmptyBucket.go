@@ -22,7 +22,7 @@ func emptyBucket(cmd []string) {
 	nb := bckt{bp}
 
 	if !nb.exists(){
-		fmt.Println("The specified bucket does not exist")
+		fmt.Println("[Error] The specified bucket does not exist")
 		return
 	}
 
@@ -42,6 +42,6 @@ func emptyBucket(cmd []string) {
 			fmt.Println("The database was not changed")
 			break
 		}
-		fmt.Print("Unknown input. ")
+		fmt.Print("[Error] Unknown input. ")
 	}
 }

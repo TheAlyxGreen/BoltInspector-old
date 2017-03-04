@@ -34,8 +34,7 @@ func main() {
 			os.Exit(0)
 			return
 		} else if !ex {
-				fmt.Println("The specified file does not exist.")
-				fmt.Println("")
+				fmt.Print("[Error] The specified file does not exist.\n")
 		} else {
 			path = DBPath
 			break

@@ -1,5 +1,11 @@
 # Bolt Inspector Changelog
 
+### March 3rd, 2017
+```
+- Added "[Error]" tag to multiple error messages that were previously missing it
+- Minor other tweaks and fixes. Mostly aesthetic.
+```
+
 ### February 20th, 2017
 ```
 - Added 'copy' and 'move' to the help command

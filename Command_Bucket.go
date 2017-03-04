@@ -19,7 +19,7 @@ func bucket(cmd []string){
 	_,suc := currentBucket.getOne(args[0])
 
 	if suc {
-		fmt.Println("Value for key \"" + args[0] + "\" is already defined in this bucket (" + currentBucket.bucketString() + ")")
+		fmt.Println("[Error] Value for key \"" + args[0] + "\" is already defined in this bucket (" + currentBucket.bucketString() + ")")
 		return
 	}
 

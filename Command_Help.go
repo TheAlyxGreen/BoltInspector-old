@@ -18,9 +18,8 @@ func help(cmd []string){
 		See this information again, or get more
 		information about a specific command.
 
-	bucket <key>:
-		Create a nested bucket in the current
-		bucket with the given key.
+	bucket <path>:
+		Create a new bucket at the given path.
 
 	cd <path>:
 		Change the current bucket to the

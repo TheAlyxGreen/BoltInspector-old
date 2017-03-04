@@ -29,12 +29,12 @@ func print(cmd []string){
 	val,suc := nb.getOne(trgt)
 
 	if !suc {
-		fmt.Printf("Value for key %s in %s is undefined\n",trgt,nb.bucketString())
+		fmt.Printf("[Error] Value for key %s in %s is undefined\n",trgt,nb.bucketString())
 		return
 	}
 
-	if val.v == nil{
-		fmt.Printf("Key %s is a bucket\n",trgt)
+	if val.isBucket() {
+		fmt.Printf("[Error] Key %s is a bucket\n",trgt)
 		return
 	}
 
@@ -59,11 +59,11 @@ func print(cmd []string){
 					fmt.Println(data)
 				}
 			} else if args[i]=="b" || args[i]=="-b"{
-				fmt.Printf("Byte String: %v",val.v)
+				fmt.Printf("Byte String: %v\n",val.v)
 			}
 		}
 	} else {
-		fmt.Printf("Byte String: %v",val.v)
+		fmt.Printf("Byte String: %v\n",val.v)
 	}
 
 }

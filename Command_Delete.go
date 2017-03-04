@@ -31,7 +31,7 @@ func delete(cmd []string){
 	val,suc := nb.getOne(trgt)
 
 	if !suc {
-		fmt.Printf("Value for key %s is undefined in %s\n",args[0],nb.bucketString())
+		fmt.Printf("[Error] Value for key %s is undefined in %s\n",args[0],nb.bucketString())
 		return
 	}
 
@@ -53,7 +53,7 @@ func delete(cmd []string){
 			fmt.Println("The database was not changed")
 			break
 		}
-		fmt.Print("Unknown input. ")
+		fmt.Print("[Error] Unknown input. ")
 	}
 
 }

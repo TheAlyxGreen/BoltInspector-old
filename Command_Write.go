@@ -71,7 +71,7 @@ func write(cmd []string){
 		buf := new(bytes.Buffer)
 		err2 := binary.Write(buf, binary.LittleEndian, i)
 		if err2 != nil {
-			fmt.Println("binary.Write failed:", err2)
+			fmt.Println("[Error] binary.Write failed:", err2)
 			return
 		}
 		nb.insert([]byte(trgt), buf.Bytes())
